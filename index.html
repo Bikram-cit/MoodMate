@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="as">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MoodMate - Your Student Companion</title>
+  <title>MoodMate - তোমাৰ পঢ়াৰ সংগী</title>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, sans-serif; color: #252642; background: linear-gradient(135deg, #eef2ff, #fdf2f8); }
@@ -52,47 +52,47 @@
   <main class="container">
     <header>
       <h1>🌈 MoodMate</h1>
-      <p>Your friendly AI companion for motivation, studying and student life.</p>
+      <p>অনুপ্ৰেৰণা, পঢ়া-শুনা আৰু ছাত্ৰ জীৱনৰ বাবে তোমাৰ বন্ধুসুলভ AI সংগী।</p>
     </header>
 
     <section class="panel">
-      <h2>😊 How are you feeling today?</h2>
+      <h2>😊 আজি তুমি কেনে অনুভৱ কৰিছা?</h2>
       <div class="moods">
-        <button type="button" data-mood="happy">😊 Happy</button>
-        <button type="button" data-mood="stressed">😰 Stressed</button>
-        <button type="button" data-mood="sad">😔 Sad</button>
-        <button type="button" data-mood="unmotivated">😴 Unmotivated</button>
-        <button type="button" data-mood="confused">🤔 Confused</button>
+        <button type="button" data-mood="happy">😊 সুখী</button>
+        <button type="button" data-mood="stressed">😰 চিন্তিত</button>
+        <button type="button" data-mood="sad">😔 দুখী</button>
+        <button type="button" data-mood="unmotivated">😴 মন যোৱা নাই</button>
+        <button type="button" data-mood="confused">🤔 বুজি পোৱা নাই</button>
       </div>
-      <p class="small">Choose a mood to get started.</p>
+      <p class="small">আৰম্ভ কৰিবলৈ এটা অনুভৱ বাছি লোৱা।</p>
     </section>
 
     <section class="panel">
-      <h2>💬 Talk to MoodMate</h2>
+      <h2>💬 MoodMate ৰ লগত কথা পাতা</h2>
       <div id="chat" aria-live="polite"></div>
       <form id="chatForm" class="chat-form">
-        <input id="messageInput" type="text" maxlength="1000" placeholder="Tell me what's on your mind..." autocomplete="off">
-        <button class="primary" id="sendButton" type="button">Send ➤</button>
+        <input id="messageInput" type="text" maxlength="1000" placeholder="তোমাৰ মনত কি আছে কোৱা..." autocomplete="off">
+        <button class="primary" id="sendButton" type="button">পঠিওৱা ➤</button>
       </form>
-      <p class="small">Take one small step at a time. You are learning as you go.</p>
-      <button type="button" id="clearChat">Clear chat history</button>
+      <p class="small">এবাৰত এটা সৰু খোজ লোৱা। তুমি শিকি শিকি আগবাঢ়ি আছা।</p>
+      <button type="button" id="clearChat">কথোপকথন মচি পেলোৱা</button>
     </section>
 
     <section class="panel">
-      <h2>🎯 My Daily Study Goals</h2>
+      <h2>🎯 মোৰ দৈনিক পঢ়াৰ লক্ষ্য</h2>
       <form id="goalForm" class="goal-form">
-        <input id="goalInput" type="text" maxlength="120" placeholder="e.g. Study circuit theory for 30 minutes">
-        <button class="primary" id="addGoalButton" type="button">Add goal</button>
+        <input id="goalInput" type="text" maxlength="120" placeholder="যেনে: ৩০ মিনিট গণিত অনুশীলন কৰা">
+        <button class="primary" id="addGoalButton" type="button">লক্ষ্য যোগ কৰা</button>
       </form>
       <div id="scoreBox" class="score">
         <div class="pct" id="goalPercent">0%</div>
-        <div class="small" id="goalProgress">0 goals completed</div>
+        <div class="small" id="goalProgress">এতিয়ালৈ কোনো লক্ষ্য সম্পূৰ্ণ হোৱা নাই</div>
         <div class="msg" id="goalMessage"></div>
       </div>
       <div class="bar"><div id="goalBar"></div></div>
       <div id="goalList"></div>
     </section>
-    <footer>Made for students with 💜 and AI.</footer>
+    <footer>ছাত্ৰ-ছাত্ৰীৰ বাবে 💜 আৰু AI ৰে নিৰ্মিত।</footer>
   </main>
 
   <script>
@@ -138,7 +138,7 @@
     function renderChat() {
       chatBox.replaceChildren();
       if (!history.length) {
-        addMessage("bot", "Hi! I'm MoodMate 💜 How are you feeling today? Tell me what's on your mind, and let's work through it together.");
+        addMessage("bot", "নমস্কাৰ! মই MoodMate 💜 আজি তুমি কেনে অনুভৱ কৰিছা? তোমাৰ মনত কি আছে কোৱা, আমি একেলগে সমাধান উলিয়াম।");
         return;
       }
       history.forEach(message => addMessage(message.role, message.text));
@@ -163,21 +163,21 @@
           })
         });
       } catch (error) {
-        throw new Error("Could not reach Cloudflare Worker. Verify its exact URL and deployment.");
+        throw new Error("AI সেৱাৰ লগত সংযোগ হ'ব পৰা নাই। ইণ্টাৰনেট আৰু Worker ৰ ঠিকনা পৰীক্ষা কৰা।");
       }
 
       let data;
       try {
         data = await response.json();
       } catch {
-        throw new Error("Worker returned a non-JSON response. Check its URL and deployment.");
+        throw new Error("সেৱাই অপ্ৰত্যাশিত উত্তৰ দিলে। Worker পৰীক্ষা কৰা।");
       }
 
       if (!response.ok) {
-        throw new Error(data.error || "Worker request failed (HTTP " + response.status + ").");
+        throw new Error(data.error || "অনুৰোধ বিফল হ'ল (HTTP " + response.status + ")।");
       }
       if (typeof data.reply !== "string" || !data.reply.trim()) {
-        throw new Error("Worker response has no reply. Check the Worker code and Gemini model.");
+        throw new Error("সেৱাই কোনো উত্তৰ দিয়া নাই।");
       }
       return data.reply.trim();
     }
@@ -192,8 +192,8 @@
       renderChat();
       messageInput.value = "";
       sendButton.disabled = true;
-      sendButton.textContent = "Thinking…";
-      const loading = addMessage("bot", "MoodMate is thinking…");
+      sendButton.textContent = "ভাবি আছোঁ…";
+      const loading = addMessage("bot", "MoodMate ভাবি আছে…");
 
       try {
         const answer = await askGemini(userText);
@@ -202,11 +202,11 @@
         saveData();
       } catch (error) {
         console.error("MoodMate API error:", error);
-        loading.textContent = "Sorry, I couldn't get a reply. " + error.message;
+        loading.textContent = "দুঃখিত, উত্তৰ পাব পৰা নগ'ল। " + error.message;
         loading.classList.add("error");
       } finally {
         sendButton.disabled = false;
-        sendButton.textContent = "Send ➤";
+        sendButton.textContent = "পঠিওৱা ➤";
         messageInput.focus();
       }
     }
@@ -219,11 +219,11 @@
       button.addEventListener("click", () => {
         mood = button.dataset.mood;
         const prompts = {
-          happy: "I'm feeling happy today! Help me use this positive energy productively.",
-          stressed: "I'm stressed about my studies. Help me calm down and choose one manageable next step.",
-          sad: "I'm feeling sad today. Can you listen and offer some encouragement?",
-          unmotivated: "I'm feeling unmotivated to study. Help me start with a small task.",
-          confused: "I'm confused about my studies and don't know where to begin. Help me make a simple plan."
+          happy: "মই আজি সুখী! এই ভাল শক্তি পঢ়াত কেনেকৈ লগাব পাৰোঁ কোৱা।",
+          stressed: "মই পঢ়াৰ কথাত চিন্তিত। মোক শান্ত হ'বলৈ আৰু এটা সৰু পদক্ষেপ বাছি ল'বলৈ সহায় কৰা।",
+          sad: "মই আজি দুখী অনুভৱ কৰিছোঁ। তুমি মোৰ কথা শুনি অলপ উৎসাহ দিব পাৰিবানে?",
+          unmotivated: "পঢ়িবলৈ মোৰ মন যোৱা নাই। এটা সৰু কামেৰে আৰম্ভ কৰিবলৈ সহায় কৰা।",
+          confused: "মই পঢ়াৰ বিষয়ে দিশহাৰা হৈছোঁ, ক'ৰপৰা আৰম্ভ কৰিম বুজা নাই। এটা সৰল পৰিকল্পনা বনাই দিয়া।"
         };
         messageInput.value = prompts[mood];
         messageInput.focus();
@@ -231,7 +231,7 @@
     });
 
     document.getElementById("clearChat").addEventListener("click", () => {
-      if (!confirm("Clear the saved chat history on this browser?")) return;
+      if (!confirm("এই ব্ৰাউজাৰত সংৰক্ষিত কথোপকথন মচিবনে?")) return;
       history = [];
       saveData();
       renderChat();
@@ -251,7 +251,7 @@
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = Boolean(goal.done);
-        checkbox.setAttribute("aria-label", "Mark goal completed");
+        checkbox.setAttribute("aria-label", "লক্ষ্য সম্পূৰ্ণ বুলি চিহ্নিত কৰা");
         checkbox.addEventListener("change", () => {
           goals[index].done = checkbox.checked;
           saveData();
@@ -264,7 +264,7 @@
 
         const remove = document.createElement("button");
         remove.type = "button";
-        remove.textContent = "Remove";
+        remove.textContent = "আঁতৰোৱা";
         remove.addEventListener("click", () => {
           goals.splice(index, 1);
           saveData();
@@ -277,20 +277,20 @@
 
       const completed = goals.filter(goal => goal.done).length;
       const percent = goals.length ? Math.round(completed / goals.length * 100) : 0;
-      goalProgress.textContent = completed + " of " + goals.length + " goals completed";
+      goalProgress.textContent = goals.length + " টা লক্ষ্যৰ ভিতৰত " + completed + " টা সম্পূৰ্ণ";
       document.getElementById("goalPercent").textContent = percent + "%";
       const box = document.getElementById("scoreBox");
       const msg = document.getElementById("goalMessage");
       const wasDone = box.classList.contains("celebrate");
       if (goals.length && percent === 100) {
         box.classList.add("celebrate");
-        msg.textContent = "⭐🌟 Congratulations! You achieved 100% of your goals today! 🌟⭐ Be proud of yourself!";
+        msg.textContent = "⭐🌟 অভিনন্দন! আজি তুমি তোমাৰ ১০০% লক্ষ্য পূৰণ কৰিলা! 🌟⭐ নিজকে লৈ গৌৰৱ কৰা!";
         if (!wasDone) box.style.animation = "none", void box.offsetWidth, box.style.animation = "";
       } else {
         box.classList.remove("celebrate");
-        msg.textContent = !goals.length ? "Add a goal to get started." :
-          percent >= 50 ? "Great progress, keep going! 💪" :
-          percent > 0 ? "Good start, one step at a time! 🌱" : "You can do this! Start with one goal. 💜";
+        msg.textContent = !goals.length ? "আৰম্ভ কৰিবলৈ এটা লক্ষ্য যোগ কৰা।" :
+          percent >= 50 ? "বঢ়িয়া আগবাঢ়িছা, এনেকৈয়ে চলি থাকা! 💪" :
+          percent > 0 ? "ভাল আৰম্ভণি, এবাৰত এটা খোজ! 🌱" : "তুমি পাৰিবা! এটা লক্ষ্যৰ পৰা আৰম্ভ কৰা। 💜";
       }
       document.getElementById("goalBar").style.width = percent + "%";
     }
