@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoodMate - Your Student Companion</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #252642; background: linear-gradient(135deg, #eef2ff, #fdf2f8); }
+    .container { max-width: 850px; margin: auto; padding: 20px; }
+    header { text-align: center; padding: 20px 0; }
+    header h1 { margin: 0; color: #6554d9; font-size: 2.5rem; }
+    header p, .small { color: #686981; }
+    .panel { background: white; padding: 20px; margin-bottom: 18px; border-radius: 18px; box-shadow: 0 5px 20px #22224412; }
+    h2 { font-size: 1.25rem; margin-top: 0; }
+    button { border: 0; border-radius: 10px; padding: 11px 15px; background: #e9e7ff; color: #4536a8; cursor: pointer; font-size: .95rem; }
+    button:hover { filter: brightness(.96); }
+    button:disabled { opacity: .6; cursor: wait; }
+    .moods { display: flex; flex-wrap: wrap; gap: 9px; }
+    #chat { height: 330px; overflow-y: auto; background: #f8f8fc; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
+    .message { padding: 11px 13px; border-radius: 12px; margin: 8px 0; max-width: 90%; overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.5; }
+    .user { background: #dedbff; margin-left: auto; }
+    .bot { background: #e5f7eb; margin-right: auto; }
+    .error { background: #fff0d8; }
+    .chat-form, .goal-form { display: flex; gap: 8px; }
+    input[type="text"] { min-width: 0; padding: 12px; border: 1px solid #d7d8e5; border-radius: 10px; font-size: 1rem; }
+    #messageInput, #goalInput { flex: 1; }
+    .primary { background: #6554d9; color: white; }
+    .small { font-size: .86rem; }
+    .goal-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eeeef5; }
+    .goal-item input { width: 18px; height: 18px; }
+    .goal-item span { flex: 1; overflow-wrap: anywhere; }
+    .score { text-align: center; margin: 6px 0 12px; }
+    .score .pct { font-size: 3rem; font-weight: bold; color: #6554d9; line-height: 1; }
+    .score .msg { margin-top: 6px; font-size: 1rem; color: #4536a8; min-height: 1.4em; }
+    .celebrate { background: linear-gradient(135deg, #fff8dc, #ffe9f3); border: 2px solid #f5c542; border-radius: 14px; padding: 14px; animation: pop .5s ease; }
+    .celebrate .pct { color: #d9a000; }
+    .celebrate .msg { font-size: 1.15rem; font-weight: bold; color: #8a5a00; }
+    @keyframes pop { 0% { transform: scale(.85); } 60% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    .bar { height: 14px; background: #eeeef5; border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+    .bar div { height: 100%; width: 0; background: #6554d9; transition: width .3s; }
+    .done { text-decoration: line-through; color: #888; }
+    footer { text-align: center; padding: 10px; color: #77798b; font-size: .85rem; }
+    @media (max-width: 520px) {
+      .container { padding: 12px; } .panel { padding: 15px; }
+      header h1 { font-size: 2rem; } .chat-form, .goal-form { flex-wrap: wrap; }
+      #messageInput, #goalInput { flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>🌈 MoodMate</h1>
+      <p>Your friendly AI companion for motivation, studying and student life.</p>
+    </header>
+
+    <section class="panel">
+      <h2>😊 How are you feeling today?</h2>
+      <div class="moods">
+        <button type="button" data-mood="happy">😊 Happy</button>
+        <button type="button" data-mood="stressed">😰 Stressed</button>
+        <button type="button" data-mood="sad">😔 Sad</button>
+        <button type="button" data-mood="unmotivated">😴 Unmotivated</button>
+        <button type="button" data-mood="confused">🤔 Confused</button>
+      </div>
+      <p class="small">Choose a mood to get started.</p>
+    </section>
+
+    <section class="panel">
+      <h2>💬 Talk to MoodMate</h2>
+      <div id="chat" aria-live="polite"></div>
+      <form id="chatForm" class="chat-form">
+        <input id="messageInput" type="text" maxlength="1000" placeholder="Tell me what's on your mind..." autocomplete="off">
+        <button class="primary" id="sendButton" type="button">Send ➤</button>
+      </form>
+      <p class="small">Take one small step at a time. You are learning as you go.</p>
+      <button type="button" id="clearChat">Clear chat history</button>
+    </section>
+
+    <section class="panel">
+      <h2>🎯 My Daily Study Goals</h2>
+      <form id="goalForm" class="goal-form">
+        <input id="goalInput" type="text" maxlength="120" placeholder="e.g. Study circuit theory for 30 minutes">
+        <button class="primary" id="addGoalButton" type="button">Add goal</button>
+      </form>
+      <div id="scoreBox" class="score">
+        <div class="pct" id="goalPercent">0%</div>
+        <div class="small" id="goalProgress">0 goals completed</div>
+        <div class="msg" id="goalMessage"></div>
+      </div>
+      <div class="bar"><div id="goalBar"></div></div>
+      <div id="goalList"></div>
+    </section>
+    <footer>Made for students with 💜 and AI.</footer>
+  </main>
+
+  <script>
+    // Cloudflare Worker that holds the Gemini API key (never put the key in this file).
+    const WORKER_URL = "https://moodmate.rasnam12345.workers.dev";
+
+    const chatBox = document.getElementById("chat");
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+
+    let mood = "neutral";
+    let history = loadArray("moodmate-chat");
+    let goals = loadArray("moodmate-goals");
+
+    function loadArray(key) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return Array.isArray(value) ? value : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem("moodmate-chat", JSON.stringify(history));
+        localStorage.setItem("moodmate-goals", JSON.stringify(goals));
+      } catch (error) {
+        console.warn("Could not save data in this browser.", error);
+      }
+    }
+
+    function addMessage(role, text, extraClass = "") {
+      const element = document.createElement("div");
+      element.className = "message " + role + (extraClass ? " " + extraClass : "");
+      element.textContent = text;
+      chatBox.appendChild(element);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return element;
+    }
+
+    function renderChat() {
+      chatBox.replaceChildren();
+      if (!history.length) {
+        addMessage("bot", "Hi! I'm MoodMate 💜 How are you feeling today? Tell me what's on your mind, and let's work through it together.");
+        return;
+      }
+      history.forEach(message => addMessage(message.role, message.text));
+    }
+
+    async function askGemini(userText) {
+      const recentHistory = history.slice(-13, -1)
+        .filter(message => ["user", "bot"].includes(message.role) && typeof message.text === "string")
+        .map(message => ({
+          role: message.role === "user" ? "user" : "model",
+          parts: [{ text: message.text }]
+        }));
+
+      let response;
+      try {
+        response = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mood,
+            contents: [...recentHistory, { role: "user", parts: [{ text: userText }] }]
+          })
+        });
+      } catch (error) {
+        throw new Error("Could not reach Cloudflare Worker. Verify its exact URL and deployment.");
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("Worker returned a non-JSON response. Check its URL and deployment.");
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || "Worker request failed (HTTP " + response.status + ").");
+      }
+      if (typeof data.reply !== "string" || !data.reply.trim()) {
+        throw new Error("Worker response has no reply. Check the Worker code and Gemini model.");
+      }
+      return data.reply.trim();
+    }
+
+    async function handleSend(event) {
+      if (event) event.preventDefault();
+      const userText = messageInput.value.trim();
+      if (!userText || sendButton.disabled) return;
+
+      history.push({ role: "user", text: userText });
+      saveData();
+      renderChat();
+      messageInput.value = "";
+      sendButton.disabled = true;
+      sendButton.textContent = "Thinking…";
+      const loading = addMessage("bot", "MoodMate is thinking…");
+
+      try {
+        const answer = await askGemini(userText);
+        loading.textContent = answer;
+        history.push({ role: "bot", text: answer });
+        saveData();
+      } catch (error) {
+        console.error("MoodMate API error:", error);
+        loading.textContent = "Sorry, I couldn't get a reply. " + error.message;
+        loading.classList.add("error");
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = "Send ➤";
+        messageInput.focus();
+      }
+    }
+    sendButton.addEventListener("click", handleSend);
+    messageInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") handleSend(event);
+    });
+
+    document.querySelectorAll("[data-mood]").forEach(button => {
+      button.addEventListener("click", () => {
+        mood = button.dataset.mood;
+        const prompts = {
+          happy: "I'm feeling happy today! Help me use this positive energy productively.",
+          stressed: "I'm stressed about my studies. Help me calm down and choose one manageable next step.",
+          sad: "I'm feeling sad today. Can you listen and offer some encouragement?",
+          unmotivated: "I'm feeling unmotivated to study. Help me start with a small task.",
+          confused: "I'm confused about my studies and don't know where to begin. Help me make a simple plan."
+        };
+        messageInput.value = prompts[mood];
+        messageInput.focus();
+      });
+    });
+
+    document.getElementById("clearChat").addEventListener("click", () => {
+      if (!confirm("Clear the saved chat history on this browser?")) return;
+      history = [];
+      saveData();
+      renderChat();
+    });
+
+    const goalForm = document.getElementById("goalForm");
+    const goalInput = document.getElementById("goalInput");
+    const goalList = document.getElementById("goalList");
+    const goalProgress = document.getElementById("goalProgress");
+
+    function renderGoals() {
+      goalList.replaceChildren();
+      goals.forEach((goal, index) => {
+        const row = document.createElement("div");
+        row.className = "goal-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = Boolean(goal.done);
+        checkbox.setAttribute("aria-label", "Mark goal completed");
+        checkbox.addEventListener("change", () => {
+          goals[index].done = checkbox.checked;
+          saveData();
+          renderGoals();
+        });
+
+        const label = document.createElement("span");
+        label.textContent = goal.text;
+        if (goal.done) label.className = "done";
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Remove";
+        remove.addEventListener("click", () => {
+          goals.splice(index, 1);
+          saveData();
+          renderGoals();
+        });
+
+        row.append(checkbox, label, remove);
+        goalList.appendChild(row);
+      });
+
+      const completed = goals.filter(goal => goal.done).length;
+      const percent = goals.length ? Math.round(completed / goals.length * 100) : 0;
+      goalProgress.textContent = completed + " of " + goals.length + " goals completed";
+      document.getElementById("goalPercent").textContent = percent + "%";
+      const box = document.getElementById("scoreBox");
+      const msg = document.getElementById("goalMessage");
+      const wasDone = box.classList.contains("celebrate");
+      if (goals.length && percent === 100) {
+        box.classList.add("celebrate");
+        msg.textContent = "⭐🌟 Congratulations! You achieved 100% of your goals today! 🌟⭐ Be proud of yourself!";
+        if (!wasDone) box.style.animation = "none", void box.offsetWidth, box.style.animation = "";
+      } else {
+        box.classList.remove("celebrate");
+        msg.textContent = !goals.length ? "Add a goal to get started." :
+          percent >= 50 ? "Great progress, keep going! 💪" :
+          percent > 0 ? "Good start, one step at a time! 🌱" : "You can do this! Start with one goal. 💜";
+      }
+      document.getElementById("goalBar").style.width = percent + "%";
+    }
+
+    function handleAddGoal(event) {
+      if (event) event.preventDefault();
+      const text = goalInput.value.trim();
+      if (!text) return;
+      goals.push({ text, done: false });
+      goalInput.value = "";
+      saveData();
+      renderGoals();
+    }
+    document.getElementById("addGoalButton").addEventListener("click", handleAddGoal);
+    goalInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") handleAddGoal(event);
+    });
+
+    renderChat();
+    renderGoals();
+  </script>
+</body>
+</html>
